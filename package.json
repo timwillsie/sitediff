@@ -1,0 +1,28 @@
+{
+  "name": "sitediff",
+  "version": "0.0.1",
+  "description": "logs into websites takes screenshots of secured sites and compares them to older states via image diff",
+  "main": "diff_restricted_pages.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timwillsie/sitediff.git"
+  },
+  "keywords": [
+    "phantomjs",
+    "screenshot",
+    "diff",
+    "webpage"
+  ],
+  "author": "timwillsie",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/timwillsie/sitediff/issues"
+  },
+  "homepage": "https://github.com/timwillsie/sitediff#readme",
+  "dependencies": {
+    "phantomjs-prebuilt": "^2.1.13"
+  }
+}

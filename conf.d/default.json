@@ -1,0 +1,26 @@
+{
+	"login": {
+		"url": "https://httpbin.org/post",
+		"credentials": {
+			"username": "<USERNAME>",
+			"password": "<PASSWORD>"
+		},
+		"domNodes": {
+			"usernameInput": "<JQUERY_SELECTOR_FOR_USERNAME_INPUT>",
+			"passwordInput": "<JQUERY_SELECTOR_FOR_PASSWORD>",
+			"submitButton": "<JQUERY_SELECTOR_FOR_SUBMIT_BUTTON>"
+		}
+	},
+	"pages": [
+		{
+			"name": "<FRIENDLY_NAME_1>",
+			"url": "<URL_1>"
+		},
+		{
+			"name": "<FRIENDLY_NAME_2>",
+			"url": "<URL_2>"
+		}
+	],
+	"user-agent": "<YOUR_FAVORITE_USER_AGENT>",
+	"mail-recipient": "<WHERE_TO_SEND_THE_RESULT>"
+}
