@@ -1,2 +1,6 @@
-conf.d/tim.json
+conf.d/*.json
+!conf.d/default.json
 node_modules
+.idea
+current/*.png
+expected/*.png

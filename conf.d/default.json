@@ -2,13 +2,8 @@
 	"login": {
 		"url": "https://httpbin.org/post",
 		"credentials": {
-			"username": "<USERNAME>",
-			"password": "<PASSWORD>"
-		},
-		"domNodes": {
-			"usernameInput": "<JQUERY_SELECTOR_FOR_USERNAME_INPUT>",
-			"passwordInput": "<JQUERY_SELECTOR_FOR_PASSWORD>",
-			"submitButton": "<JQUERY_SELECTOR_FOR_SUBMIT_BUTTON>"
+			"NAME_OF_USERNAME_PARAM": "<USERNAME>",
+			"NAME_OF_PASSWORD_PARAM": "<PASSWORD>"
 		}
 	},
 	"pages": [
