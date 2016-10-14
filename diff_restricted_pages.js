@@ -3,67 +3,75 @@
 "use strict";
 var RenderUrlsToFile, confFile, config, login, system;
 
-system             = require("system");
-var CATCH_FUNCTION = function (err)
-{
-    for (var key in err)
-    {
-        console.log('CATCH!!! key: ' + key + ' => value: ' + err[key]);
+system = require("system");
+var CATCH_FUNCTION = function (err) {
+    if (typeof err == "string") {
+        console.log("CATCH!!! " + err);
     }
+    else {
+        for (var key in err) {
+            console.log('CATCH!!! key: ' + key + ' => value: ' + err[key]);
+        }
+    }
+    phantom.exit();
 };
-phantom.onError    = CATCH_FUNCTION;
+phantom.onError = CATCH_FUNCTION;
 
-var createPage = function()
-{
+var createPage = function () {
     var page = require('webpage').create();
 
-    page.settings.userAgent       = config.userAgent;
-    page.settings.resourceTimeout = 2000;
-    page.onError                  = phantom.onError;
-    page.onResourceTimeout        = CATCH_FUNCTION;
+    page.settings.userAgent = config.userAgent;
+    page.settings.resourceTimeout = 10000;
+    page.onError = phantom.onError;
+    page.onResourceTimeout = CATCH_FUNCTION;
+
+    page.viewportSize = {
+        width: 1024,
+        height: 800
+    };
+
+    page.onResourceRequested = function (request) {
+        console.log('Request ' + JSON.stringify(request, undefined, 4));
+    };
 
     return page;
 };
 
-login = function (config, cb)
-{
+login = function (config, cb) {
     var page = createPage(),
         data = '';
 
-    page.viewportSize = {
-        width : 1024,
-        height: 800
-    };
-
-    for (var key in config.login.credentials)
-    {
-        if (data.length > 0)
-        {
+    for (var key in config.login.credentials) {
+        if (data.length > 0) {
             data += "&";
         }
         data += key + "=" + config.login.credentials[key];
     }
 
-    try
-    {
-        page.open(config.login.url, 'post', data, function (status)
-        {
-            if (status !== 'success')
-            {
+    var loginUrl = config.login.url;
+
+    if (config.login.method == "get") {
+        //loginUrl += "?" + data;
+        //data = "";
+        console.log('loginUrl: ' + loginUrl);
+    }
+
+    try {
+        page.open(config.login.url, config.login.method, data, function (status) {
+            if (status !== 'success') {
                 cb('Unable to post!', null);
             }
-            else
-            {
+            else {
                 page.render('./current/login.png');
 
                 page.close();
                 cb();
+                return;
             }
             phantom.exit();
         });
     }
-    catch (err)
-    {
+    catch (err) {
         CATCH_FUNCTION(err);
     }
 };
@@ -74,73 +82,60 @@ login = function (config, cb)
  @param callbackPerUrl Function called after finishing each URL, including the last URL
  @param callbackFinal Function called after finishing everything
  */
-RenderUrlsToFile = function (pages, callbackPerUrl, callbackFinal)
-{
+RenderUrlsToFile = function (pages, callbackPerUrl, callbackFinal) {
     console.log("LOGIN: pages: " + pages[0].name);
 
     var urlIndex = 0,
         // crypto   = require('crypto'),
         retrieve, next, getFilename, getMd5Sum, page;
 
-    getMd5Sum = function (string)
-    {
+    getMd5Sum = function (string) {
         // return crypto.createHash('md5').update(string).digest('hex');
         return string;
     };
 
-    getFilename = function (url)
-    {
-        return "./current/" + urlIndex + ".png";
+    getFilename = function (url) {
+        return "./current/" + url.key + ".png";
         // return "./current/" + getMd5Sum(pages[urlIndex].url) + ".png";
     };
 
-    next = function (status, url, file)
-    {
+    next = function (status, url, file) {
         page.close();
         callbackPerUrl(status, url, file);
         return retrieve();
     };
 
-    retrieve = function ()
-    {
+    retrieve = function () {
         var url;
-        if (pages.length > 0)
-        {
+        if (pages.length > 0) {
             url = pages.shift();
             urlIndex++;
             page = createPage();
 
             console.log('RENDER: trying to render: ' + url.name);
-            try
-            {
-                return page.open(url.url, function (status)
-                {
-                    var file = getFilename(url.url);
+            try {
+                return page.open(url.url, function (status) {
+                    var file = getFilename(url);
                     console.log('RENDER: got filename ' + file);
-                    if (status === "success")
-                    {
+                    if (status === "success") {
                         console.log('RENDER: Successfully rendered ' + url.url);
 
-                        return window.setTimeout((function ()
-                        {
+                        return window.setTimeout((function () {
                             page.render(file);
                             return next(status, url.url, file);
-                        }), 200);
+                        }), 10000);
                     }
-                    else
-                    {
+                    else {
                         console.log('RENDER: ERROR: ' + url.url);
                         return next(status, url.url, file);
                     }
                 });
             }
-            catch (err)
-            {
+            catch (err) {
                 CATCH_FUNCTION(err);
             }
         }
-        else
-        {
+        else {
             console.log('RENDER: reached end of pages.length. exit now');
             return callbackFinal();
         }
@@ -149,12 +144,10 @@ RenderUrlsToFile = function (pages, callbackPerUrl, callbackFinal)
 };
 
 
-if (system.args.length > 1)
-{
+if (system.args.length > 1) {
     confFile = Array.prototype.slice.call(system.args, 1);
 }
-else
-{
+else {
     console.log("Usage: phantomjs diff_restricted_pages.js [confFile]");
     confFile = "./conf.d/default.json";
 }
@@ -162,31 +155,23 @@ else
 config = require(confFile);
 
 // Login durchführen (Cookie speichern)
-login(config, function (err, page)
-{
-    if (err)
-    {
+login(config, function (err, page) {
+    if (err) {
         // Error
         console.log(err);
     }
-    else
-    {
+    else {
         // Success
         // Seiten rendern und in einem TEMP-Ordner ablegen
         console.log('SUCCESS: logged in. Now trying to render the pages');
-        try
-        {
+        try {
             RenderUrlsToFile(
                 config.pages,
-                page,
-                function (status, url, file)
-                {
-                    if (status !== "success")
-                    {
+                function (status, url, file) {
+                    if (status !== "success") {
                         return console.log("Unable to render '" + url + "'");
                     }
-                    else
-                    {
+                    else {
                         // Bilder mit erwarteten Ergebnissen vergleichen
                         // Unterschiede sammeln
                         // Mail vorbereiten
@@ -195,15 +180,12 @@ login(config, function (err, page)
                     }
                 }
                 ,
-                function ()
-                {
-                    page.close();
+                function () {
                     return phantom.exit();
                 }
             );
         }
-        catch (err)
-        {
+        catch (err) {
             CATCH_FUNCTION(err);
         }
     }

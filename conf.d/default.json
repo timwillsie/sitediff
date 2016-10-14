@@ -4,7 +4,8 @@
 		"credentials": {
 			"NAME_OF_USERNAME_PARAM": "<USERNAME>",
 			"NAME_OF_PASSWORD_PARAM": "<PASSWORD>"
-		}
+		},
+		"method" : "post"
 	},
 	"pages": [
 		{
@@ -16,6 +17,6 @@
 			"url": "<URL_2>"
 		}
 	],
-	"user-agent": "<YOUR_FAVORITE_USER_AGENT>",
-	"mail-recipient": "<WHERE_TO_SEND_THE_RESULT>"
+	"userAgent": "<YOUR_FAVORITE_USER_AGENT>",
+	"mailRecipient": "<WHERE_TO_SEND_THE_RESULT>"
 }

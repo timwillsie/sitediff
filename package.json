@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/timwillsie/sitediff#readme",
   "dependencies": {
+    "image-diff": "^1.6.3",
     "phantomjs-prebuilt": "^2.1.13"
   }
 }
